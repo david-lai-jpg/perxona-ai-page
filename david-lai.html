@@ -251,6 +251,81 @@
     .about-copy p { max-width: 720px; font-size: 19px; line-height: 1.75; }
     .about-links { display: flex; flex-wrap: wrap; gap: 10px 30px; margin-top: 38px; }
 
+    .agent-launcher {
+      position: fixed;
+      right: clamp(14px, 2vw, 28px);
+      bottom: clamp(14px, 2vw, 28px);
+      z-index: 2147483647;
+      min-height: 58px;
+      padding: 0 22px;
+      border: 2px solid var(--ink);
+      background: var(--accent);
+      color: var(--white);
+      font: inherit;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .agent-launcher:hover { background: var(--ink); }
+    .agent-dialog {
+      z-index: 2147483647;
+      width: min(620px, calc(100vw - 32px));
+      height: min(840px, calc(100dvh - 32px));
+      max-width: none;
+      max-height: none;
+      margin: auto 20px 20px auto;
+      padding: 0;
+      overflow: hidden;
+      border: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--white);
+    }
+    .agent-dialog[open] { display: flex; flex-direction: column; }
+    .agent-dialog::backdrop { background: rgb(19 19 19 / 72%); }
+    .agent-dialog-header {
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 18px 16px 22px;
+      border-bottom: 1px solid rgb(255 253 248 / 35%);
+    }
+    .agent-dialog-header p { margin: 0; }
+    .agent-dialog-header strong,
+    .agent-dialog-header span { display: block; }
+    .agent-dialog-header strong { font-size: 17px; }
+    .agent-dialog-header span { margin-top: 4px; color: #c9c6bf; font-size: 13px; }
+    .agent-close {
+      width: 48px;
+      min-width: 48px;
+      height: 48px;
+      border: 1px solid rgb(255 253 248 / 55%);
+      background: transparent;
+      color: var(--white);
+      font: inherit;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .agent-close:hover { background: var(--white); color: var(--ink); }
+    .agent-stage {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--ink);
+    }
+    .agent-loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      color: #c9c6bf;
+      font-size: 14px;
+    }
+
     .contact { background: var(--accent); color: var(--white); border-top: 0; }
     .contact .section-kicker { color: var(--white); }
     .contact-title {
@@ -331,6 +406,13 @@
       .hero-actions .button, .hero-actions .text-link { width: 100%; }
       .hero-meta { align-items: flex-start; flex-direction: column; gap: 8px; }
       .portrait-frame { min-height: 540px; }
+      .agent-launcher { min-height: 54px; padding-inline: 18px; }
+      .agent-dialog {
+        width: 100vw;
+        height: 100dvh;
+        margin: 0;
+        border: 0;
+      }
       .service { grid-template-columns: 42px 1fr; gap: 16px; }
       .service p { font-size: 16px; }
       .proof-item, .proof-item:nth-child(4), .proof-item:nth-child(5) { grid-column: 1 / -1; min-height: 250px; }
@@ -505,6 +587,30 @@
     </section>
   </main>
 
+  <button class="agent-launcher" id="agent-open" type="button" aria-haspopup="dialog" aria-controls="agent-dialog" aria-expanded="false">
+    開啟 AI 對話 ↗
+  </button>
+
+  <dialog class="agent-dialog" id="agent-dialog" aria-labelledby="agent-dialog-title">
+    <div class="agent-dialog-header">
+      <p>
+        <strong id="agent-dialog-title">與 David 的 AI 助理對話</strong>
+        <span>先說明你的流程、卡點與理想結果。</span>
+      </p>
+      <button class="agent-close" id="agent-close" type="button" aria-label="關閉 AI 對話">×</button>
+    </div>
+    <div class="agent-stage" id="agent-mount">
+      <p class="agent-loading">AI 對話載入中…</p>
+    </div>
+    <template id="agent-template">
+      <sv-agent
+        agentProfileId="01KZTWFQQK67HJH30RHGERX2HE"
+        presentationMode="embedded"
+        apiKey="7e5cd789-4688-4c1f-811e-5b0fa466f515"
+      ></sv-agent>
+    </template>
+  </dialog>
+
   <footer>
     <div class="footer-inner wrap">
       <span>© <span id="year"></span> David Lai 賴大衛</span>
@@ -515,14 +621,31 @@
     </div>
   </footer>
 
-  <sv-agent
-    agentProfileId="01KZTWFQQK67HJH30RHGERX2HE"
-    presentationMode="embedded"
-    apiKey="7e5cd789-4688-4c1f-811e-5b0fa466f515"
-  ></sv-agent>
-
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    const agentDialog = document.getElementById('agent-dialog');
+    const agentOpen = document.getElementById('agent-open');
+    const agentClose = document.getElementById('agent-close');
+    const agentMount = document.getElementById('agent-mount');
+    const agentTemplate = document.getElementById('agent-template');
+    let agentLoaded = false;
+
+    agentOpen.addEventListener('click', () => {
+      agentDialog.showModal();
+      agentOpen.setAttribute('aria-expanded', 'true');
+      if (agentLoaded) return;
+      agentMount.replaceChildren(agentTemplate.content.cloneNode(true));
+      agentLoaded = true;
+    });
+    agentClose.addEventListener('click', () => agentDialog.close());
+    agentDialog.addEventListener('click', (event) => {
+      if (event.target === agentDialog) agentDialog.close();
+    });
+    agentDialog.addEventListener('close', () => {
+      agentOpen.setAttribute('aria-expanded', 'false');
+      agentOpen.focus();
+    });
 
     const revealItems = document.querySelectorAll('[data-reveal]');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
