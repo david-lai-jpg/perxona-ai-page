@@ -18,5 +18,4 @@ GitHub Pages 從 `main` 分支根目錄發布。推送至 `main` 後，GitHub �
 
 ## Perxona
 
-Perxona 尚未嵌入。正式整合時，請從 Perxona Console 取得網域綁定的 Web Embed Code。不要將未確認可公開的 API Key、Token 或其他憑證寫入此儲存庫。
-
+Perxona Avatar 已使用官方 Web Embed Code 嵌入。部署金鑰只允許從 `david-lai-jpg.github.io` origin 使用；其他 API Key、Token 或憑證不得寫入此儲存庫。
