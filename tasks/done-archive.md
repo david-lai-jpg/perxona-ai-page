@@ -9,3 +9,5 @@
 - [x] Build David Lai's Traditional Chinese Bold Editorial personal site
 - [x] Validate links, responsive layout, and rendered desktop/mobile output
 - [x] Add and locally verify the fixed maximum-z-index AI launcher and responsive dialog
+- [x] Embed the Perxona avatar with the approved GitHub Pages origin
+- [x] Verify the live avatar, API initialization, and responsive layout on desktop and mobile
